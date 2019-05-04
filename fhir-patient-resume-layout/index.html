@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+
+  <!-- Register service worker if supported. -->
+    <!--
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js');
+    }
+  </script>
+    -->
+  <!-- Load polyfills -->
+ <!-- <script
+    src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"
+    defer>
+  </script>
+-->
+  <!-- Load components via WebComponents.waitFor -->
+  <!-- <script type="module">
+    window.WebComponents = window.WebComponents || {
+      waitFor(cb){ addEventListener('WebComponentsReady', cb) }
+    }
+    WebComponents.waitFor(async () => {
+      import('./fhir-patient-resume-layout.js');
+    });
+  </script>
+-->
+  <!-- Change stuff here for your app -->
+  <meta name="description" content="fhir-patient-resume-layout">
+  <meta name="theme-color" content="#ffffff">
+  <title>start-lit-element</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="shortcut icon" href="/manifest/favicon.ico">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta charset="UTF-8">
+  <script type="module" src="src/fhir-patient-resume-layout.js"></script>
+  <script type="module" src="src/fhir-patient-resume.js"></script>
+  <script type="module" src="src/fhir-patient-address.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+</head>
+</head>
+<body>
+
+  <!--
+    To configure starting state of the checkbox from markup:
+    <start-lit-element pie="true">
+  -->
+
+  <fhir-patient-resume-layout>
+    <!-- Placeholders to improve time to first paint -->
+    <img src="manifest/loading_wc.gif"/>
+    <!-- Check for JavaScript -->
+    <p id="jsyes"></p>
+    <script type="text/javascript">
+      document.getElementById('jsyes').innerHTML='Loading...';
+    </script>
+    <noscript>
+      Could not render the custom element. Check that JavaScript is enabled.
+    </noscript>
+  </fhir-patient-resume-layout>
+</body>

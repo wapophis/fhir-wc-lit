@@ -1,0 +1,38 @@
+{
+  "display": "fullscreen",
+  "version": "1.0",
+  "manifest_version": 1,
+
+  "description": "fhir-patient-resume-layout",
+  "start_url": "index.html",
+  "name": "fhir-patient-resume-layout",
+  "short_name": "fhir-patient-resume",
+  "background_color": "#ffffff",
+  "theme_color":"#ffffff",
+
+  "icons": [{
+    "src": "./manifest/chemistry-48.png",
+    "sizes": "48x48",
+    "type": "image/png"
+  }, {
+    "src": "./manifest/chemistry-72.png",
+    "sizes": "72x72",
+    "type": "image/png"
+  }, {
+    "src": "./manifest/chemistry-96.png",
+    "sizes": "96x96",
+    "type": "image/png"
+  }, {
+    "src": "./manifest/chemistry-144.png",
+
+    "type": "image/png"
+  }, {
+    "src": "./manifest/chemistry-192.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  }, {
+    "src": "./manifest/ichemistrycon-512.png",
+    "sizes": "512x512",
+    "type": "image/png"
+  }]
+}
