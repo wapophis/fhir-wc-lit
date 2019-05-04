@@ -33,7 +33,6 @@ class PatientAddress extends LitElement{
   }
 
   render(){
-    console.log(this.line);
     return html`
 
     <!-- template content -->

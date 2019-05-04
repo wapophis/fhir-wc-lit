@@ -15,11 +15,11 @@ class PatientResumeLayout extends LitElement{
             {use:"usual",
              value:"AN123456789"}
          ],
-         name:
+         name:[
          {given:"Felipe Juan Froilán de Todos los Santos",
          family:"de Marichalar",
          prefix:"Don",
-         suffix:"y Borbón"},
+         suffix:"y Borbón"}],
        address:[
          {line:["Calle","Antonio de Nebrija",11],
          city:"Bormujos",
@@ -65,7 +65,7 @@ class PatientResumeLayout extends LitElement{
        <div class="layout vertical wrap" style="padding:16px" >
           <!--<fhir-mwc-patient-resume .patient=${this.myFhirPatient} givenName=${this.myFhirPatient.name.given}
            firstSurname=${this.myFhirPatient.name.family} secondSurName=${this.myFhirPatient.name.suffix} mainId="AN123456789"></fhir-mwc-patient-resume> -->
-           <fhir-mwc-patient-resume .patient=${this.myFhirPatient}></fhir-mwc-patient-resume>
+           <fhir-mwc-patient-resume .patient=${this.myFhirPatient} showAllNames></fhir-mwc-patient-resume>
        </div>
     <!-- patient hr basic -->
        <div class="layout vertical wrap" style="padding:16px" >
