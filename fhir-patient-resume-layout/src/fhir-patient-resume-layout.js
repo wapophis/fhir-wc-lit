@@ -11,6 +11,7 @@ class PatientResumeLayout extends LitElement{
       // Initialize properties
       this.loading=false;
       this.myFhirPatient={
+         id:"AN12345677890",
          identifier:[
             {use:"usual",
              value:"AN123456789"}
@@ -35,6 +36,8 @@ class PatientResumeLayout extends LitElement{
 
        this.addEventListener('load-complete', async (e) => {
          this.loading=false;
+         // FIXME
+         this.myFhirPatient=e.detail.data;
          await this.requestUpdate();
          console.log(this.loading);
        });
@@ -58,8 +61,9 @@ class PatientResumeLayout extends LitElement{
     <!-- template content -->
 
       ${this.renderStyle()}
-      <div>Loading status:${this.loading}</div>
+
       <div class="mdc-card ${classMap({'mdc-card--stroked': true})}">
+      <div style="display:none">Loading status:${this.loading}</div>
       <div class="layout vertical wrap" width="640px">
             <!-- patient resume -->
        <div class="layout vertical wrap" style="padding:16px" >

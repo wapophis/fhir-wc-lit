@@ -3,6 +3,8 @@ import {Layouts,Alignment} from 'lit-flexbox-literals';         /// SOPORTE PARA
 import {css} from 'lit-element';
 import {Button} from "@material/mwc-button"
 import {TabBar} from "@authentic/mwc-tab-bar"
+import {Select} from "@authentic/mwc-select"
+import {ListItem} from "@authentic/mwc-list"
 
 
 class PatientResume extends LitElement{
@@ -152,7 +154,7 @@ class PatientResume extends LitElement{
         postalCode=${this.patient.address[0].postalCode}
         district=${this.patient.address[0].district}></fhir-patient-address></div>
         <div  style="flex-shrink:0.5;padding:8px">
-        <mwc-button class="light" label="Equipo asignado" icon="people_outline" color="red" style="align-self:center" @click=${this.clickHandler}></mwc-button>
+        <mwc-button class="light" outlined label="Equipo asignado" icon="people_outline" color="red" style="align-self:center" @click=${this.clickHandler}></mwc-button>
         <!--<img src="../manifest/doctor-stethoscope.svg" width="100%"/>--></div>
     </div>`;
   }
@@ -181,21 +183,99 @@ class PatientResume extends LitElement{
        return html``;
      }
   }
+/**
+ * This method is the template logico to show patient humanName as a select
+ * TODO: FINISH JOB
+ */
+  get renderSelectForHumanName(){
+    console.log({showAllNames:this.showAllNames});
+    console.log({patient:this.patient});
+    if(this.showAllNames===true && this.patient.name.length>1){
+      let items=[];
+      for(let i=0;i<this.patient.name.length;i++){
+        let icon=this.mapIconNameUse[this.patient.name[i].use];
+        let humanNameDt=this.patient.name[i];
+        let selectValue=this.patient.name[i].use;
+        let selectLabel=this.patient.name[i].use;
+
+         items.push(html`<mwc-list-item label="label" value="value" text="text" icon=${icon}
+         @click=${(event)=> this.dispatchEvent(new CustomEvent(this.mapEvents.showHumanNameByUse.key
+         ,{bubbles:this.mapEvents.showHumanNameByUse.bubbles
+         ,composed:this.mapEvents.showHumanNameByUse.composed
+         ,detail:{data:humanNameDt}}
+         ))}><p slot="text">text</p>${selectLabel}</mwc-list-item>`);
+      }
+
+      return html`<mwc-select label="Patient names ..."><mwc-menu slot="menu">${items}</mwc-menu></mwc-select>`;
+    }else{
+      return html``;
+    }
+  }
+
+  // TODO: EXTRACT AS A FHIR-PATIENT-HUMANNAME-ACCORDION WEB COMPONENT
+  get renderListItemForHumanName(){
+    console.log({showAllNames:this.showAllNames});
+    console.log({patient:this.patient});
+
+    let accordionLabel=this.patient.name[0].given+" "+this.patient.name[0].family;
+    let accordionSubLabel=this.patient.name[0].use;
+
+    //if(this.showAllNames===true && this.patient.name.length>1){
+      let items=[];
+      let accordionIcon=this.mapIconNameUse[this.patient.name[0].use];
+      let firstName="El nombre identificado por parametro ";
+
+      for(let i=0;i<this.patient.name.length;i++){
+        let icon=this.mapIconNameUse[this.patient.name[i].use];
+        let humanNameDt=this.patient.name[i];
+        console.log(humanNameDt);
+        let renderedName=(this.patient.name[i].given!==undefined?this.patient.name[i].given:'')+" "+(this.patient.name[i].family!==undefined?this.patient.name[i].family:'');
+        let renderedUse=humanNameDt.use;
+
+         items.push(html`
+
+          <span class="layout horizontal wrap justified" style="font-family:Roboto;" >
+      <span><mwc-icon style="opacity:0.38; align-self:center;margin-right:32px">${icon}</mwc-icon><span>${renderedName}</span></span>
+              <span style="text-transform: capitalize;opacity:0.36;margin-left: 56px;font-size: smaller;align-self: flex-end;">${renderedUse}</span>
+          </div>
+
+         `);
+      }
+
+      return html`<mwc-list-item style="font-family:Roboto;"
+      accordion
+      icon="supervised_user_circle"
+      >
+      <span slot="primary-text" style="font-size:x-large">${accordionLabel}</span>
+      <span slot="secondary-text" style="text-transform:capitalize">${accordionSubLabel}</span>
+         <p slot="content" style="margin-left:16px;margin-right:16px">${items}</p>
+      </mwc-list-item>`;
+   /* }else{
+      return html``;
+    }*/
+  }
+
+  get renderPatientIdentifiers(){
+    return html`
+    <div class="layout horizontal fixed-top wrap" style="font-size:x-large;font-family: 'Roboto';border-bottom:1px solid #EEEEEE;padding-bottom:4px;margin-left:16px;">
+    <mwc-icon style="opacity:0.36">fingerprint</mwc-icon ><div style="color:#4d4d4d;font-size:smaller;">${this.mainId}</div>
+    </div>`;
+  }
 
 
   render(){
+    /*<div style="color:#808080">${this.prefixName}</div>
+    <div style="color:#333333;">${this.firstSurname} ${this.secondSurname}, ${this.givenName}</div>*/
     return html`
 
     <!-- template content -->
 
       <div class="layout vertical wrap">
-        <!-- PATIENTS IDENTIFIER DATA -->
-        ${this.renderTabsForHumanName}
-        <div class="layout vertical fixed-top wrap" style="font-size:x-large;font-family: 'Roboto';border-bottom:1px solid #EEEEEE;padding-bottom:4px;">
-          <div style="color:#808080">${this.prefixName}</div>
-          <div style="color:#333333;">${this.firstSurname} ${this.secondSurname}, ${this.givenName}</div>
-          <div style="color:#4d4d4d;font-size:smaller;">${this.mainId}</div>
-        </div>
+        <!-- PATIENTS HUMAN NAME DATA -->
+        ${this.renderListItemForHumanName}
+        <!-- PATIENTS IDENTIFIERS DATA -->
+        ${this.renderPatientIdentifiers}
+        <!-- PATIENT's ADDRESS DATA -->
         ${this.renderAddresses}
       </div>
 
