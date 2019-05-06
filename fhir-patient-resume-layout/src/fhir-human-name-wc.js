@@ -258,9 +258,10 @@ class HumanNameListItem extends LitElement{
         let humanNameDt=this.nameList[i];
         let renderedName=(this.nameList[i].given!==undefined?" "+this.nameList[i].given:'')+(this.nameList[i].family!==undefined?" "+this.nameList[i].family:'');
         let renderedUse=humanNameDt.use;
-        let isEditing=this.editable && this.editableItemUse!==humanNameDt.use;
+        let isNoEditing=this.editable && this.editableItemUse!==humanNameDt.use;
+
         if(i!==defaultNameIndex || this.hideDefault===false){
-           if(isEditing===true){
+           if(isNoEditing===true){
             items.push(html`
             <span class="layout horizontal">
                <mwc-icon style="opacity:0.38; margin-right:32px;vertical-align:middle">${icon}</mwc-icon>
