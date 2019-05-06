@@ -1,9 +1,14 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html,css } from 'lit-element';
 import {Layouts,Alignment} from 'lit-flexbox-literals';         /// SOPORTE PARA FLEXBOX LAYOUTS
 import {ListItem} from "@authentic/mwc-list"
+import {Button} from "@material/mwc-button"
+import {TextField} from "@authentic/mwc-textfield"
 
 
 class HumanNameListItem extends LitElement{
+  get TAG(){
+    return "HumanNameListItem"+":"+new Date();
+  }
 
   constructor() {
     // Always call super() first
@@ -14,6 +19,7 @@ class HumanNameListItem extends LitElement{
     if(this.hideDefault===undefined){
       this.hideDefault=false;
     }
+    this.editableItemUse===undefined?this.editableItemUse=null:'';
 
     // NAME USE ICON MAP
     // USE THIS ICON MAP TO MAP MATERIAL ICONS TO FHIR SUPPORTED USES FOR HUMANNAMEDT
@@ -54,6 +60,25 @@ class HumanNameListItem extends LitElement{
         composed:true,
         details:{data:"HumanNameDt expected"}
       }
+      ,onEditName:{
+        key:"onEditName",
+        bubbles:false,
+        composed:false,
+        details:{data:"HumanNameDt expected"}
+      }
+      ,beforeEditName:{
+        key:"beforeEditName",
+        bubbles:true,
+        composed:true,
+        details:{data:"HumanNameDt expected"}
+      }
+      ,afterEditName:{
+        key:"afterEditName",
+        bubbles:true,
+        composed:true,
+        details:{data:"HumanNameDt expected"}
+      }
+
     }
 
     this.addEventListener('human-name-use-selected',async(e)=>{
@@ -64,10 +89,55 @@ class HumanNameListItem extends LitElement{
     this.addEventListener('load-complete', async (e) => {
             await this.requestUpdate();
    });
+
+   /**
+    * This listener launch the lifecycle to update and existing name.
+    */
+   this.addEventListener(this.mapEvents.onEditName.key,async(e)=>{
+     console.log({TAG:this.TAG,msg:this.mapEvents.onEditName.key+"Listener",payload:e.detail.data});
+    this.dispatchEvent(new CustomEvent(this.mapEvents.beforeEditName.key
+      ,{bubbles:this.mapEvents.beforeEditName.bubbles,composed:this.mapEvents.beforeEditName.composed
+        ,detail:{data:e.detail.data}}));
+    await this.requestUpdate();
+  });
+
+
+   /**
+    * This listener launch the lifecycle to update and existing name.
+    */
+   this.addEventListener(this.mapEvents.beforeEditName.key,async(e)=>{
+      console.log({TAG:this.TAG,msg:this.mapEvents.beforeEditName.key+"Listener",payload:e.detail.data});
+       this.editableItemUse=e.detail.data.use;
+       this.dispatchEvent(new CustomEvent(this.mapEvents.afterEditName.key
+      ,{bubbles:this.mapEvents.afterEditName.bubbles,composed:this.mapEvents.afterEditName.composed
+        ,detail:{data:e.detail.data}}));
+    await this.requestUpdate();
+  });
+
+
+     /**
+    * This listener launch the lifecycle to update and existing name.
+    */
+   this.addEventListener(this.mapEvents.afterEditName.key,async(e)=>{
+    console.log({TAG:this.TAG,msg:this.mapEvents.afterEditName.key+"Listener",payload:e.detail.data});
+    //this.editableItemUse=null;
+    await this.requestUpdate();
+  });
+
+
+
+
+
   }
 
   static get styles() {
-      return [Layouts,Alignment];
+      return [Layouts,Alignment,
+        css`.light {
+          --mdc-theme-on-primary: black;
+          --mdc-theme-primary: #26a69a;
+          --mdc-theme-on-secondary: black;
+          --mdc-theme-secondary: #c0ca33;
+        }`];
   }
   static get properties(){
     return {
@@ -82,10 +152,21 @@ class HumanNameListItem extends LitElement{
 
       // WC OPTIONS
       editable:{type:Boolean},          // Flag wich make the human name dt editable
-      showIcons:{type:Boolean}         // True to show icons for use.
+      showIcons:{type:Boolean},         // True to show icons for use.
+      editableItemUse:{type:String}         // Property to control the editable item.
 
 
     };
+  }
+  /**
+   *
+   * @param {*} use type use for the human name dt.
+   * It's launch event onEditName with humannamedt attached
+   */
+  editNameHandler(humanNameDt){
+    this.dispatchEvent(new CustomEvent(this.mapEvents.onEditName.key
+      ,{bubbles:this.mapEvents.onEditName.bubbles,composed:this.mapEvents.onEditName.composed
+        ,detail:{data:humanNameDt}}));
   }
 
   /**
@@ -144,7 +225,10 @@ class HumanNameListItem extends LitElement{
   /**
    * Method wich render the human name list as a list item with an accordion
    */
+
   get renderListItemForHumanName(){
+    console.log({TAG:this.TAG,msg:"renderListItemForHumanName"});
+
     let showAccordion=false;
     let accordionLabel=null;
     let accordionSubLabel=null;
@@ -174,19 +258,38 @@ class HumanNameListItem extends LitElement{
         let humanNameDt=this.nameList[i];
         let renderedName=(this.nameList[i].given!==undefined?" "+this.nameList[i].given:'')+(this.nameList[i].family!==undefined?" "+this.nameList[i].family:'');
         let renderedUse=humanNameDt.use;
+        let isEditing=this.editable && this.editableItemUse!==humanNameDt.use;
         if(i!==defaultNameIndex || this.hideDefault===false){
-         items.push(html`
-         <span class="layout horizontal">
-            <mwc-icon style="opacity:0.38; margin-right:32px;vertical-align:middle">${icon}</mwc-icon>
-            <span class="layout vertical wrap" style="font-family:Roboto;" >
-              <span><span style="/*vertical-align: super;*/">${renderedName}</span></span>
-              <span style="text-transform: capitalize;opacity:0.36;font-size: smaller;align-self: flex-start;">${renderedUse}</span>
+           if(isEditing===true){
+            items.push(html`
+            <span class="layout horizontal">
+               <mwc-icon style="opacity:0.38; margin-right:32px;vertical-align:middle">${icon}</mwc-icon>
+               <span class="layout vertical wrap" style="font-family:Roboto;" >
+                 <span><span style="/*vertical-align: super;*/">${renderedName}</span></span>
+                 <span style="text-transform: capitalize;opacity:0.36;font-size: smaller;align-self: flex-start;">${renderedUse}</span>
+               </span>
+               <span style="vertical-align:middle;margin-left:auto;align-self:flex-end">
+               <mwc-button icon="edit" class="light" style="align-self:center;" @click=${(e)=>this.editNameHandler(humanNameDt)}></mwc-button></span>
             </span>
-            <span style="vertical-align:middle;margin-left:auto;opacity:0.38;align-self:flex-end"><mwc-icon>edit</mwc-icon></span>
+            `);
+           }else{
+            items.push(html`
+            <span class="layout vertical wrap" style="font-family:Roboto;">
+                <span class="layout horizontal wrap">
+                <mwc-icon style="opacity:0.38; margin-right:32px;vertical-align:middle">${icon}</mwc-icon>
+                <mwc-textfield label="Name Given" value="${humanNameDt.given}" required></mwc-textfield>
+                <mwc-textfield label="Name Family" value="${humanNameDt.family}" style="margin-left:56px"></mwc-textfield>
 
-         </span>
-
-         `);
+                </span>
+                <span style="text-transform: capitalize;opacity:0.36;font-size: smaller;align-self: flex-start;">${renderedUse}</span>
+                <span class="layout horizontal" style="margin-bottom:24px">
+                  <mwc-button icon="save" outlined dense class="light" label="save" style="align-self:center;margin-left:auto" @click=${(e)=>this.editNameHandler(humanNameDt)}></mwc-button>
+                  <mwc-button icon="delete" dense class="light" style="align-self:center;" @click=${(e)=>this.editNameHandler(humanNameDt)}></mwc-button>
+                  <mwc-button icon="close" dense class="light" style="align-self:center;" @click=${(e)=>this.editNameHandler(humanNameDt)}></mwc-button>
+                </span>
+            </span>
+            `);
+           }
         }
       }
       // RENDER ROOT WC

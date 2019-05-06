@@ -90,7 +90,6 @@ class PatientResume extends LitElement{
       css`.light {
         --mdc-theme-on-primary: black;
         --mdc-theme-primary: #00867d;
-        --mdc-theme-on-secondary: black;
         --mdc-theme-secondary: white;
       }`];
   }
@@ -272,7 +271,7 @@ class PatientResume extends LitElement{
 
       <div class="layout vertical wrap">
         <!-- PATIENTS HUMAN NAME DATA -->
-        <fhir-mwc-human-name-list-item .nameList=${this.patient.name} showAllNames defaultNameUse="official"></fhir-mwc-human-name-list-item>
+        <fhir-mwc-human-name-list-item .nameList=${this.patient.name} showAllNames defaultNameUse="official" editable></fhir-mwc-human-name-list-item>
 
         <!-- PATIENTS IDENTIFIERS DATA -->
         ${this.renderPatientIdentifiers}
