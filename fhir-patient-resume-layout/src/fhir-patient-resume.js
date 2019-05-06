@@ -228,15 +228,15 @@ class PatientResume extends LitElement{
       for(let i=0;i<this.patient.name.length;i++){
         let icon=this.mapIconNameUse[this.patient.name[i].use];
         let humanNameDt=this.patient.name[i];
-        console.log(humanNameDt);
-        let renderedName=(this.patient.name[i].given!==undefined?this.patient.name[i].given:'')+" "+(this.patient.name[i].family!==undefined?this.patient.name[i].family:'');
+        let renderedName=(this.patient.name[i].given!==undefined?" "+this.patient.name[i].given:'')+(this.patient.name[i].family!==undefined?" "+this.patient.name[i].family:'');
         let renderedUse=humanNameDt.use;
 
          items.push(html`
 
           <span class="layout horizontal wrap justified" style="font-family:Roboto;" >
-      <span><mwc-icon style="opacity:0.38; align-self:center;margin-right:32px">${icon}</mwc-icon><span>${renderedName}</span></span>
-              <span style="text-transform: capitalize;opacity:0.36;margin-left: 56px;font-size: smaller;align-self: flex-end;">${renderedUse}</span>
+          <span><mwc-icon style="opacity:0.38; align-self:center;margin-right:32px">${icon}</mwc-icon><span style="vertical-align: super;">${renderedName}</span></span>
+              <span style="text-transform: capitalize;opacity:0.36;margin-left: 56px;font-size: smaller;align-self: flex-end;">${renderedUse}
+              <span style="vertical-align:middle;margin-left:8px"><mwc-icon>edit</mwc-icon></span></span>
           </div>
 
          `);
@@ -272,7 +272,8 @@ class PatientResume extends LitElement{
 
       <div class="layout vertical wrap">
         <!-- PATIENTS HUMAN NAME DATA -->
-        ${this.renderListItemForHumanName}
+        <fhir-mwc-human-name-list-item .nameList=${this.patient.name} showAllNames defaultNameUse="official"></fhir-mwc-human-name-list-item>
+
         <!-- PATIENTS IDENTIFIERS DATA -->
         ${this.renderPatientIdentifiers}
         <!-- PATIENT's ADDRESS DATA -->
