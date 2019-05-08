@@ -9,6 +9,27 @@ class HumanNameListItem extends LitElement{
   get TAG(){
     return "HumanNameListItem"+":"+new Date();
   }
+  static get properties(){
+    return {
+      /// RENDERED INFO
+      nameList:{type:Array,hasChanged:(value,oldValue)=> true},
+      /// OPTIONS
+
+      // NAME OPTIONS
+      showAllNames:{type: Boolean},     // Flag to show all names from patient in a tab fashion manner.
+      defaultNameUse:{type:String},     // Default name to show in the list item
+      hideDefault:{type:Boolean},       // Flag to hide the default selected name in expanded view.
+
+      // WC OPTIONS
+      editable:{type:Boolean},          // Flag wich make the human name dt editable
+      showIcons:{type:Boolean},         // True to show icons for use.
+      editableItemUse:{type:String},     // Property to control the editable item.
+      totalCount:{type:Number}          // Total count of names present in the array.
+
+
+
+    };
+  }
 
   constructor() {
     // Always call super() first
@@ -77,6 +98,12 @@ class HumanNameListItem extends LitElement{
         bubbles:true,
         composed:true,
         details:{data:"HumanNameDt expected"}
+      },
+      onRemoveName:{
+        key:"onRemoveName",
+        bubbles:false,
+        composed:false,
+        details:{data:"HumanNameDt removed expected"}
       }
 
     }
@@ -124,11 +151,74 @@ class HumanNameListItem extends LitElement{
     await this.requestUpdate();
   });
 
+  } // END OF THE CONSTRUCTOR
 
 
-
-
+    /**
+   *
+   * @param {*} use type use for the human name dt.
+   * It's launch event onEditName with humannamedt attached
+   */
+  editNameHandler(humanNameDt){
+    this.dispatchEvent(new CustomEvent(this.mapEvents.onEditName.key
+      ,{bubbles:this.mapEvents.onEditName.bubbles,composed:this.mapEvents.onEditName.composed
+        ,detail:{data:humanNameDt}}));
   }
+
+  /**
+   * It's stop the editing of the fields
+   * @param {*} humanNameDt
+   */
+  cancelEditingNameHandler(humanNameDt){
+    this.editableItemUse=null;
+  }
+
+  /**
+   * It's removes the item from the list, updating the date range accordly.
+   * @param {*} index
+   * @param {*} humanNameDt
+   */
+  removeNameHandler(index,humanNameDt){
+    console.log(humanNameDt);
+    if(humanNameDt.period!==undefined){ // PROCESS PERIOD DATA
+        if(humanNameDt.period.end===undefined){
+          humanNameDt.period.end=new Date();
+        }
+    }
+    this.nameList.splice(index,1);
+
+    // Updates the defaultNameUse, this force ui update
+    if(this.defaultNameUse===humanNameDt.use){
+      this.defaultNameUse=this.nameList[0].use;
+    }
+    this.totalCount--;
+    this.dispatchEvent(new CustomEvent(this.mapEvents.onRemoveName.key,{
+      bubbles:this.mapEvents.onRemoveName.bubbles,
+      composed:this.mapEvents.onRemoveName.composed,
+      detail:{data:humanNameDt}
+    }));
+  }
+
+  /**
+   * Method to update the humanNameDt provided in dest field
+   * @param {*} dest HumanName
+   * @param {*} field given (will be splitted by spaces)| family
+   * @param {*} value value to set in the field.
+   */
+  updateNameHandler(dest,field,value){
+    if(field==="given"){
+      dest[field]=value.split(" ");
+    }
+    if(field==="family"){
+      dest[field]=value;
+    }
+  }
+
+
+  updated(changedProperties){
+    console.log({tag:this.TAG,function:"updated:changedProperties",args:changedProperties});
+  }
+
 
   static get styles() {
       return [Layouts,Alignment,
@@ -139,35 +229,127 @@ class HumanNameListItem extends LitElement{
           --mdc-theme-secondary: #c0ca33;
         }`];
   }
-  static get properties(){
-    return {
-      /// RENDERED INFO
-      nameList:{type:Array},
-      /// OPTIONS
-
-      // NAME OPTIONS
-      showAllNames:{type: Boolean},     // Flag to show all names from patient in a tab fashion manner.
-      defaultNameUse:{type:String},     // Default name to show in the list item
-      hideDefault:{type:Boolean},       // Flag to hide the default selected name in expanded view.
-
-      // WC OPTIONS
-      editable:{type:Boolean},          // Flag wich make the human name dt editable
-      showIcons:{type:Boolean},         // True to show icons for use.
-      editableItemUse:{type:String}         // Property to control the editable item.
 
 
-    };
-  }
+
   /**
-   *
-   * @param {*} use type use for the human name dt.
-   * It's launch event onEditName with humannamedt attached
+   * Method wich render the human name list as a list item with an accordion
    */
-  editNameHandler(humanNameDt){
-    this.dispatchEvent(new CustomEvent(this.mapEvents.onEditName.key
-      ,{bubbles:this.mapEvents.onEditName.bubbles,composed:this.mapEvents.onEditName.composed
-        ,detail:{data:humanNameDt}}));
+
+  get renderListItemForHumanName(){
+    console.log({TAG:this.TAG,msg:"renderListItemForHumanName"});
+
+    let showAccordion=false;
+    let accordionLabel=null;
+    let accordionSubLabel=null;
+    let accordionIcon=null;
+    let defaultNameIndex=0;
+
+    // Search for default name to show
+    if(this.defaultNameUse!== undefined){
+      let useFound=false;
+        for(let i=0;i<this.nameList.length && useFound===false;i++){
+          if(this.nameList[i].use===this.defaultNameUse){
+            defaultNameIndex=i;
+            useFound=true;
+          }
+        }
+    }
+    accordionLabel=(this.nameList[defaultNameIndex].given!==undefined?" "+this.nameList[defaultNameIndex].given.join(" "):'')+(this.nameList[defaultNameIndex].family!==undefined?" "+this.nameList[defaultNameIndex].family:'');
+    accordionSubLabel=this.nameList[defaultNameIndex].use;
+    accordionIcon=this.mapIconNameUse[this.nameList[defaultNameIndex].use];
+
+    // RENDER ITEMS
+    //if(this.showAllNames===true && this.patient.name.length>1){
+      let items=[];
+
+      for(let i=0;this.showAllNames===true && i<this.nameList.length;i++){
+        let icon=this.mapIconNameUse[this.nameList[i].use];
+        let humanNameDt=this.nameList[i];
+        let renderedName=(this.nameList[i].given!==undefined?" "+this.nameList[i].given.join(" "):'')+(this.nameList[i].family!==undefined?" "+this.nameList[i].family:'');
+        let renderedUse=humanNameDt.use;
+        let isNoEditing=this.editable && this.editableItemUse!==humanNameDt.use;
+
+        if(i!==defaultNameIndex || this.hideDefault===false){
+           if(isNoEditing===true){
+            items.push(html`
+            <span class="layout horizontal wrap">
+               <mwc-icon style="opacity:0.38; margin-right:32px;vertical-align:middle">${icon}</mwc-icon>
+               <span class="layout vertical wrap" style="font-family:Roboto;" >
+                 <span><span style="/*vertical-align: super;*/">${renderedName}</span></span>
+                 <span style="text-transform: capitalize;opacity:0.36;font-size: smaller;align-self: flex-start;">${renderedUse}</span>
+               </span>
+               <span style="vertical-align:middle;margin-left:auto;align-self:flex-end">
+               <span style="margin-left:auto">
+               <mwc-button icon="edit" class="light" style="align-self:center;" @click=${(e)=>this.editNameHandler(humanNameDt)}></mwc-button></span>
+               <mwc-button icon="delete" dense class="light" style="align-self:center;" @click=${(e)=>this.removeNameHandler(i,humanNameDt)}></mwc-button>
+               </span>
+            </span>
+            `);
+           }else{
+            items.push(html`
+            <span class="layout vertical wrap" style="font-family:Roboto;">
+                <span class="layout horizontal wrap">
+                <mwc-icon style="opacity:0.38; margin-right:32px;vertical-align:middle">${icon}</mwc-icon>
+                <mwc-textfield label="Name Given" value=${humanNameDt.given.join(" ")}
+
+                @blur=${(e)=>this.editNameHandler(humanNameDt)}
+                @input=${(e)=>{console.log(e);this.updateNameHandler(humanNameDt,"given",e.target.value)}} ></mwc-textfield>
+                <mwc-textfield label="Name Family" value=${humanNameDt.family} style="margin-left:56px"
+                @blur=${(e)=>this.editNameHandler(humanNameDt)}
+                @input=${(e)=>this.updateNameHandler(humanNameDt,"family",e.target.value)}></mwc-textfield>
+
+                </span>
+                <span style="text-transform: capitalize;opacity:0.36;font-size: smaller;align-self: flex-start;">${renderedUse}</span>
+                <span class="layout horizontal" style="margin-bottom:24px">
+                  <!--<mwc-button icon="save" outlined dense class="light" label="save" style="align-self:center;margin-left:auto" @click=${(e)=>this.editNameHandler(humanNameDt)}></mwc-button>-->
+                  <mwc-button icon="close" dense class="light" style="align-self:center;margin-left:auto" @click=${(e)=>this.cancelEditingNameHandler(humanNameDt)}></mwc-button>
+                </span>
+            </span>
+            `);
+           }
+        }
+      }
+      // RENDER ROOT WC
+        showAccordion=this.nameList.length>1 && this.showAllNames===true
+      if(showAccordion){
+        return html`<mwc-list-item style="font-family:Roboto;" accordion
+          icon="supervised_user_circle">
+
+      <span slot="primary-text" style="font-size:x-large">${accordionLabel}</span>
+      <span slot="secondary-text" style="text-transform:capitalize">${accordionSubLabel}</span>
+         <p slot="content" style="margin-left:16px;margin-right:16px">${items}</p>
+      </mwc-list-item>`;
+      }
+      else{
+        return html`<mwc-list-item style="font-family:Roboto;"
+          icon="supervised_user_circle">
+
+      <span slot="primary-text" style="font-size:x-large">${accordionLabel}
+      <mwc-button icon="add_box" dense class="light" style="align-self:center;margin-left:auto" @click=${(e)=>{this.nameList.push({given:[],family:"",use:"temp"});this.totalCount++;
+      }}></mwc-button>
+      </span>
+      <span slot="secondary-text" style="text-transform:capitalize">${accordionSubLabel}</span>
+         <p slot="content" style="margin-left:16px;margin-right:16px">${items}</p>
+      </mwc-list-item>`;
+      }
+
+
   }
+
+  render(){
+    this.totalCount=this.nameList.length;
+    return html`
+   <!-- template content -->
+       ${this.renderListItemForHumanName}
+  `;
+  }
+}
+
+
+customElements.define('fhir-mwc-human-name-list-item', HumanNameListItem);
+
+
 
   /**
    * This method is the template logic to build the name use tab when there is more than only one humanName registered for the patient. Then call to render name to
@@ -221,109 +403,3 @@ class HumanNameListItem extends LitElement{
       return html``;
     }
   }*/
-
-  /**
-   * Method wich render the human name list as a list item with an accordion
-   */
-
-  get renderListItemForHumanName(){
-    console.log({TAG:this.TAG,msg:"renderListItemForHumanName"});
-
-    let showAccordion=false;
-    let accordionLabel=null;
-    let accordionSubLabel=null;
-    let accordionIcon=null;
-    let defaultNameIndex=0;
-
-    // Search for default name to show
-    if(this.defaultNameUse!== undefined){
-      let useFound=false;
-        for(let i=0;i<this.nameList.length && useFound===false;i++){
-          if(this.nameList[i].use===this.defaultNameUse){
-            defaultNameIndex=i;
-            useFound=true;
-          }
-        }
-    }
-    accordionLabel=(this.nameList[defaultNameIndex].given!==undefined?" "+this.nameList[defaultNameIndex].given:'')+(this.nameList[defaultNameIndex].family!==undefined?" "+this.nameList[defaultNameIndex].family:'');
-    accordionSubLabel=this.nameList[defaultNameIndex].use;
-    accordionIcon=this.mapIconNameUse[this.nameList[defaultNameIndex].use];
-
-    // RENDER ITEMS
-    //if(this.showAllNames===true && this.patient.name.length>1){
-      let items=[];
-
-      for(let i=0;this.showAllNames===true && i<this.nameList.length;i++){
-        let icon=this.mapIconNameUse[this.nameList[i].use];
-        let humanNameDt=this.nameList[i];
-        let renderedName=(this.nameList[i].given!==undefined?" "+this.nameList[i].given:'')+(this.nameList[i].family!==undefined?" "+this.nameList[i].family:'');
-        let renderedUse=humanNameDt.use;
-        let isNoEditing=this.editable && this.editableItemUse!==humanNameDt.use;
-
-        if(i!==defaultNameIndex || this.hideDefault===false){
-           if(isNoEditing===true){
-            items.push(html`
-            <span class="layout horizontal">
-               <mwc-icon style="opacity:0.38; margin-right:32px;vertical-align:middle">${icon}</mwc-icon>
-               <span class="layout vertical wrap" style="font-family:Roboto;" >
-                 <span><span style="/*vertical-align: super;*/">${renderedName}</span></span>
-                 <span style="text-transform: capitalize;opacity:0.36;font-size: smaller;align-self: flex-start;">${renderedUse}</span>
-               </span>
-               <span style="vertical-align:middle;margin-left:auto;align-self:flex-end">
-               <mwc-button icon="edit" class="light" style="align-self:center;" @click=${(e)=>this.editNameHandler(humanNameDt)}></mwc-button></span>
-            </span>
-            `);
-           }else{
-            items.push(html`
-            <span class="layout vertical wrap" style="font-family:Roboto;">
-                <span class="layout horizontal wrap">
-                <mwc-icon style="opacity:0.38; margin-right:32px;vertical-align:middle">${icon}</mwc-icon>
-                <mwc-textfield label="Name Given" value="${humanNameDt.given}" required></mwc-textfield>
-                <mwc-textfield label="Name Family" value="${humanNameDt.family}" style="margin-left:56px"></mwc-textfield>
-
-                </span>
-                <span style="text-transform: capitalize;opacity:0.36;font-size: smaller;align-self: flex-start;">${renderedUse}</span>
-                <span class="layout horizontal" style="margin-bottom:24px">
-                  <mwc-button icon="save" outlined dense class="light" label="save" style="align-self:center;margin-left:auto" @click=${(e)=>this.editNameHandler(humanNameDt)}></mwc-button>
-                  <mwc-button icon="delete" dense class="light" style="align-self:center;" @click=${(e)=>this.editNameHandler(humanNameDt)}></mwc-button>
-                  <mwc-button icon="close" dense class="light" style="align-self:center;" @click=${(e)=>this.editNameHandler(humanNameDt)}></mwc-button>
-                </span>
-            </span>
-            `);
-           }
-        }
-      }
-      // RENDER ROOT WC
-        showAccordion=this.nameList.length>1 && this.showAllNames===true
-      if(showAccordion){
-        return html`<mwc-list-item style="font-family:Roboto;" accordion
-          icon="supervised_user_circle">
-
-      <span slot="primary-text" style="font-size:x-large">${accordionLabel}</span>
-      <span slot="secondary-text" style="text-transform:capitalize">${accordionSubLabel}</span>
-         <p slot="content" style="margin-left:16px;margin-right:16px">${items}</p>
-      </mwc-list-item>`;
-      }
-      else{
-        return html`<mwc-list-item style="font-family:Roboto;"
-          icon="supervised_user_circle">
-
-      <span slot="primary-text" style="font-size:x-large">${accordionLabel}</span>
-      <span slot="secondary-text" style="text-transform:capitalize">${accordionSubLabel}</span>
-         <p slot="content" style="margin-left:16px;margin-right:16px">${items}</p>
-      </mwc-list-item>`;
-      }
-
-
-  }
-
-  render(){
-    return html`
-   <!-- template content -->
-       ${this.renderListItemForHumanName}
-  `;
-  }
-}
-
-
-customElements.define('fhir-mwc-human-name-list-item', HumanNameListItem);
