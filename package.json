@@ -1,0 +1,33 @@
+{
+  "name": "fhir-web-components",
+  "version": "1.0.0",
+  "description": "Fhir web components based on lit-element",
+  "main": "index.js",
+  "dependencies": {
+    "@authentic/mwc-list": "^0.4.10",
+    "@authentic/mwc-select": "^0.4.7",
+    "@authentic/mwc-tab-bar": "^0.4.7",
+    "@authentic/mwc-textfield": "^0.4.7",
+    "@material/mwc-button": "^0.5.0",
+    "@material/mwc-icon": "^0.5.0",
+    "hapi-fhir": "github:wapophis/hapi-fhir-js",
+    "install": "^0.12.2",
+    "lit-element": "^2.1.0",
+    "lit-flexbox-literals": "^0.0.7",
+    "npm": "^6.9.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wapophis/fhir-wc-lit.git"
+  },
+  "author": "atlialogic@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wapophis/fhir-wc-lit/issues"
+  },
+  "homepage": "https://github.com/wapophis/fhir-wc-lit#readme"
+}

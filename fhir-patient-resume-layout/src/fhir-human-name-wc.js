@@ -326,8 +326,8 @@ class HumanNameListItem extends LitElement{
           icon="supervised_user_circle">
 
       <span slot="primary-text" style="font-size:x-large">${accordionLabel}
-      <mwc-button icon="add_box" dense class="light" style="align-self:center;margin-left:auto" @click=${(e)=>{this.nameList.push({given:[],family:"",use:"temp"});this.totalCount++;
-      }}></mwc-button>
+      <!-- <mwc-button icon="add_box" dense class="light" style="align-self:center;margin-left:auto" @click=${(e)=>{this.nameList.push({given:[],family:"",use:"temp"});this.totalCount++;
+      }}></mwc-button> -->
       </span>
       <span slot="secondary-text" style="text-transform:capitalize">${accordionSubLabel}</span>
          <p slot="content" style="margin-left:16px;margin-right:16px">${items}</p>
