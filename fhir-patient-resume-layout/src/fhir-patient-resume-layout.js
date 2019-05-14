@@ -71,18 +71,18 @@ class PatientResumeLayout extends LitElement{
            firstSurname=${this.myFhirPatient.name.family} secondSurName=${this.myFhirPatient.name.suffix} mainId="AN123456789"></fhir-mwc-patient-resume> -->
            <fhir-mwc-patient-resume .patient=${this.myFhirPatient} showAllNames></fhir-mwc-patient-resume>
        </div>
-    <!-- patient hr basic -->
+    <!-- patient hr basic
        <div class="layout vertical wrap" style="padding:16px" >
           PATIENT HR BASIC
-       </div>
-    <!-- timer-slider-agenda -->
+       </div> -->
+    <!-- timer-slider-agenda
        <div class="layout horizontal wrap" style="padding:16px" >
           TIMER AS SLIDER AGENDA
-       </div>
-    <!-- patient appointments resumed -->
+       </div>-->
+    <!-- patient appointments resumed
        <div class="layout vertical wrap" style="padding:16px" >
           PATIENT APPOINTMENTS RESUMED
-       </div>
+       </div>-->
       <!-- MAIN ACTION BUTTON -->
     <div class="mdc-card__primary-action" tabindex="0">
        MAIN ACTION BUTTON

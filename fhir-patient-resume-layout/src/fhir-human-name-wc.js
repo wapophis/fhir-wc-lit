@@ -1,11 +1,18 @@
-import { LitElement, html,css } from 'lit-element';
-import {Layouts,Alignment} from 'lit-flexbox-literals';         /// SOPORTE PARA FLEXBOX LAYOUTS
-import {ListItem} from "@authentic/mwc-list"
-import {Button} from "@material/mwc-button"
-import {TextField} from "@authentic/mwc-textfield"
+import { LitElement, html,css } from "lit-element";
+import {Layouts,Alignment} from "lit-flexbox-literals";         /// SOPORTE PARA FLEXBOX LAYOUTS
+//import {HumanNameDt} from "hapi-fhir/src/fhir-dstu-3-0.js";
+import {ListItem} from "@authentic/mwc-list";
+import {Button} from "@material/mwc-button";
+import {TextField} from "@authentic/mwc-textfield";
+
+
+
 
 
 class HumanNameListItem extends LitElement{
+  log(message){
+    console.log({tag:this.TAG,message:message});
+  }
   get TAG(){
     return "HumanNameListItem"+":"+new Date();
   }
@@ -23,9 +30,7 @@ class HumanNameListItem extends LitElement{
       // WC OPTIONS
       editable:{type:Boolean},          // Flag wich make the human name dt editable
       showIcons:{type:Boolean},         // True to show icons for use.
-      editableItemUse:{type:String},     // Property to control the editable item.
-      totalCount:{type:Number}          // Total count of names present in the array.
-
+      editableItemUse:{type:String}     // Property to control the editable item.
 
 
     };
@@ -35,12 +40,12 @@ class HumanNameListItem extends LitElement{
     // Always call super() first
     super();
     // Initialize properties
-    console.log("CONSTRUCTOR OF HumaNameListItem");
 
     if(this.hideDefault===undefined){
       this.hideDefault=false;
     }
     this.editableItemUse===undefined?this.editableItemUse=null:'';
+
 
     // NAME USE ICON MAP
     // USE THIS ICON MAP TO MAP MATERIAL ICONS TO FHIR SUPPORTED USES FOR HUMANNAMEDT
@@ -151,6 +156,12 @@ class HumanNameListItem extends LitElement{
     await this.requestUpdate();
   });
 
+
+  this.log({text:"Constructor finished",data:{
+      mapEvents:this.mapEvents,
+      mapIconNameUse:this.mapIconNameUse
+  }});
+
   } // END OF THE CONSTRUCTOR
 
 
@@ -191,7 +202,8 @@ class HumanNameListItem extends LitElement{
     if(this.defaultNameUse===humanNameDt.use){
       this.defaultNameUse=this.nameList[0].use;
     }
-    this.totalCount--;
+   // this.totalCount--;
+    this.requestUpdate();
     this.dispatchEvent(new CustomEvent(this.mapEvents.onRemoveName.key,{
       bubbles:this.mapEvents.onRemoveName.bubbles,
       composed:this.mapEvents.onRemoveName.composed,
@@ -259,11 +271,14 @@ class HumanNameListItem extends LitElement{
     accordionSubLabel=this.nameList[defaultNameIndex].use;
     accordionIcon=this.mapIconNameUse[this.nameList[defaultNameIndex].use];
 
+
+
     // RENDER ITEMS
     //if(this.showAllNames===true && this.patient.name.length>1){
       let items=[];
 
       for(let i=0;this.showAllNames===true && i<this.nameList.length;i++){
+
         let icon=this.mapIconNameUse[this.nameList[i].use];
         let humanNameDt=this.nameList[i];
         let renderedName=(this.nameList[i].given!==undefined?" "+this.nameList[i].given.join(" "):'')+(this.nameList[i].family!==undefined?" "+this.nameList[i].family:'');
@@ -325,7 +340,7 @@ class HumanNameListItem extends LitElement{
         return html`<mwc-list-item style="font-family:Roboto;"
           icon="supervised_user_circle">
 
-      <span slot="primary-text" style="font-size:x-large">${accordionLabel}
+      <span slot="primary-text" style="font-size:x-large;">${accordionLabel}
       <!-- <mwc-button icon="add_box" dense class="light" style="align-self:center;margin-left:auto" @click=${(e)=>{this.nameList.push({given:[],family:"",use:"temp"});this.totalCount++;
       }}></mwc-button> -->
       </span>
