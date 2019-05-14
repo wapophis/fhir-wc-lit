@@ -1,6 +1,6 @@
 import { LitElement, html,css } from "lit-element";
 import {Layouts,Alignment} from "lit-flexbox-literals";         /// SOPORTE PARA FLEXBOX LAYOUTS
-//import {HumanNameDt} from "hapi-fhir/src/fhir-dstu-3-0.js";
+import {StringDt,HumanNameDt,ExtensionDt} from "hapi-fhir/src/fhir-dstu-3-0";
 import {ListItem} from "@authentic/mwc-list";
 import {Button} from "@material/mwc-button";
 import {TextField} from "@authentic/mwc-textfield";
@@ -20,6 +20,7 @@ class HumanNameListItem extends LitElement{
     return {
       /// RENDERED INFO
       nameList:{type:Array,hasChanged:(value,oldValue)=> true},
+      humanNameDtList:{type:Array,reflect:false},
       /// OPTIONS
 
       // NAME OPTIONS
@@ -40,7 +41,7 @@ class HumanNameListItem extends LitElement{
     // Always call super() first
     super();
     // Initialize properties
-
+    this.humanNameDtList=new Array();
     if(this.hideDefault===undefined){
       this.hideDefault=false;
     }
@@ -256,6 +257,17 @@ class HumanNameListItem extends LitElement{
     let accordionSubLabel=null;
     let accordionIcon=null;
     let defaultNameIndex=0;
+
+    for(let i=0;i<this.nameList.length;i++){
+      let testObject=new HumanNameDt(this.nameList[i]);
+      let extensiontest=new ExtensionDt();
+      extensiontest.uri="una uri";
+      extensiontest.put(new StringDt("Value test"));
+      testObject.addExtension(extensiontest)
+      this.log({nameListItem:this.nameList[i],fhirItem:testObject});
+
+    }
+
 
     // Search for default name to show
     if(this.defaultNameUse!== undefined){
