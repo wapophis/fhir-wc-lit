@@ -12,21 +12,37 @@
   </script>
     -->
   <!-- Load polyfills -->
- <!-- <script
+  <script
     src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"
     defer>
   </script>
--->
+
   <!-- Load components via WebComponents.waitFor -->
-  <!-- <script type="module">
+  <script type="module">
     window.WebComponents = window.WebComponents || {
       waitFor(cb){ addEventListener('WebComponentsReady', cb) }
     }
     WebComponents.waitFor(async () => {
-      import('./fhir-patient-resume-layout.js');
+      import('./node_modules/hapi-fhir/src/fhir-dstu-3-0.js');
+      import('./src/fhir-patient-resume-layout.js');
+      import('./src/fhir-patient-resume.js');
+      import('./src/fhir-patient-address.js');
+      import('./src/fhir-human-name-wc.js');
+      import('./src/fhir-human-name-material-list-item.js');
+      import('./src/fhir-human-name-material-form.js');
+    
     });
+   
   </script>
--->
+
+  <script>
+  let textAdapter=(humanName)=>{
+          humanName.text=humanName.given.join(" ")+" "+(!humanName.getFamilyElement().isEmpty()?humanName.family:'')
+          +" "+humanName.getExtensionValuesByUri("http://hl7.org/fhir/StructureDefinition/humanname-mothers-family").join(" ");
+        };
+
+  </script>
+
   <!-- Change stuff here for your app -->
   <meta name="description" content="fhir-patient-resume-layout">
   <meta name="theme-color" content="#ffffff">
@@ -37,10 +53,7 @@
   <link rel="shortcut icon" href="/manifest/favicon.ico">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta charset="UTF-8">
-  <script type="module" src="src/fhir-patient-resume-layout.js"></script>
-  <script type="module" src="src/fhir-patient-resume.js"></script>
-  <script type="module" src="src/fhir-patient-address.js"></script>
-  <script type="module" src="src/fhir-human-name-wc.js"></script>
+
   <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
    <style>
  .light {
@@ -50,7 +63,6 @@
       --mdc-theme-secondary:#c0ca33;
     }
    </style>
-</head>
 </head>
 <body>
 
@@ -71,4 +83,13 @@
       Could not render the custom element. Check that JavaScript is enabled.
     </noscript>
   </fhir-patient-resume-layout>
+  <fhir-human-name-material-list-item  icono="supervised_user_circle" 
+   modal >
+    <p slot="meta">meta</p>
+    <p slot="content">
+      <fhir-human-name-material-form></fhir-human-name-material-form>
+    </p>
+  </fhir-human_name-material-list-item>
+ 
+
 </body>

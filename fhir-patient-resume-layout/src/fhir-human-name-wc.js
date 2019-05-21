@@ -127,7 +127,7 @@ class HumanNameListItem extends LitElement{
     * This listener launch the lifecycle to update and existing name.
     */
    this.addEventListener(this.mapEvents.onEditName.key,async(e)=>{
-     console.log({TAG:this.TAG,msg:this.mapEvents.onEditName.key+"Listener",payload:e.detail.data});
+    // console.log({TAG:this.TAG,msg:this.mapEvents.onEditName.key+"Listener",payload:e.detail.data});
     this.dispatchEvent(new CustomEvent(this.mapEvents.beforeEditName.key
       ,{bubbles:this.mapEvents.beforeEditName.bubbles,composed:this.mapEvents.beforeEditName.composed
         ,detail:{data:e.detail.data}}));
@@ -139,7 +139,7 @@ class HumanNameListItem extends LitElement{
     * This listener launch the lifecycle to update and existing name.
     */
    this.addEventListener(this.mapEvents.beforeEditName.key,async(e)=>{
-      console.log({TAG:this.TAG,msg:this.mapEvents.beforeEditName.key+"Listener",payload:e.detail.data});
+     // console.log({TAG:this.TAG,msg:this.mapEvents.beforeEditName.key+"Listener",payload:e.detail.data});
        this.editableItemUse=e.detail.data.use;
        this.dispatchEvent(new CustomEvent(this.mapEvents.afterEditName.key
       ,{bubbles:this.mapEvents.afterEditName.bubbles,composed:this.mapEvents.afterEditName.composed
@@ -152,7 +152,7 @@ class HumanNameListItem extends LitElement{
     * This listener launch the lifecycle to update and existing name.
     */
    this.addEventListener(this.mapEvents.afterEditName.key,async(e)=>{
-    console.log({TAG:this.TAG,msg:this.mapEvents.afterEditName.key+"Listener",payload:e.detail.data});
+  // console.log({TAG:this.TAG,msg:this.mapEvents.afterEditName.key+"Listener",payload:e.detail.data});
     //this.editableItemUse=null;
     await this.requestUpdate();
   });
@@ -191,7 +191,7 @@ class HumanNameListItem extends LitElement{
    * @param {*} humanNameDt
    */
   removeNameHandler(index,humanNameDt){
-    console.log(humanNameDt);
+   // console.log(humanNameDt);
     if(humanNameDt.period!==undefined){ // PROCESS PERIOD DATA
         if(humanNameDt.period.end===undefined){
           humanNameDt.period.end=new Date();
@@ -229,7 +229,7 @@ class HumanNameListItem extends LitElement{
 
 
   updated(changedProperties){
-    console.log({tag:this.TAG,function:"updated:changedProperties",args:changedProperties});
+ //   console.log({tag:this.TAG,function:"updated:changedProperties",args:changedProperties});
   }
 
 
@@ -245,28 +245,19 @@ class HumanNameListItem extends LitElement{
 
 
 
+
   /**
    * Method wich render the human name list as a list item with an accordion
    */
 
   get renderListItemForHumanName(){
-    console.log({TAG:this.TAG,msg:"renderListItemForHumanName"});
+   // console.log({TAG:this.TAG,msg:"renderListItemForHumanName"});
 
     let showAccordion=false;
     let accordionLabel=null;
     let accordionSubLabel=null;
     let accordionIcon=null;
     let defaultNameIndex=0;
-
-    for(let i=0;i<this.nameList.length;i++){
-      let testObject=new HumanNameDt(this.nameList[i]);
-      let extensiontest=new ExtensionDt();
-      extensiontest.uri="una uri";
-      extensiontest.put(new StringDt("Value test"));
-      testObject.addExtension(extensiontest)
-      this.log({nameListItem:this.nameList[i],fhirItem:testObject});
-
-    }
 
 
     // Search for default name to show
@@ -279,10 +270,16 @@ class HumanNameListItem extends LitElement{
           }
         }
     }
-    accordionLabel=(this.nameList[defaultNameIndex].given!==undefined?" "+this.nameList[defaultNameIndex].given.join(" "):'')+(this.nameList[defaultNameIndex].family!==undefined?" "+this.nameList[defaultNameIndex].family:'');
-    accordionSubLabel=this.nameList[defaultNameIndex].use;
-    accordionIcon=this.mapIconNameUse[this.nameList[defaultNameIndex].use];
 
+    let defaultHumanName=new HumanNameDt(this.nameList[defaultNameIndex]);
+
+
+    //accordionLabel=(this.nameList[defaultNameIndex].given!==undefined?" "+this.nameList[defaultNameIndex].given.join(" "):'')+(this.nameList[defaultNameIndex].family!==undefined?" "+this.nameList[defaultNameIndex].family:'');
+    accordionLabel=defaultHumanName.getGiven().length>0?defaultHumanName.getGiven().join(" ")+" "+defaultHumanName.family:"";
+    //accordionSubLabel=this.nameList[defaultNameIndex].use;
+    accordionSubLabel=defaultHumanName.use;
+    //accordionIcon=this.mapIconNameUse[this.nameList[defaultNameIndex].use];
+    accordionIcon=this.mapIconNameUse[defaultHumanName.use];
 
 
     // RENDER ITEMS
@@ -290,12 +287,13 @@ class HumanNameListItem extends LitElement{
       let items=[];
 
       for(let i=0;this.showAllNames===true && i<this.nameList.length;i++){
+        let currentHumanName=new HumanNameDt(this.nameList[i]);
 
-        let icon=this.mapIconNameUse[this.nameList[i].use];
+        let icon=this.mapIconNameUse[currentHumanName.use];
         let humanNameDt=this.nameList[i];
-        let renderedName=(this.nameList[i].given!==undefined?" "+this.nameList[i].given.join(" "):'')+(this.nameList[i].family!==undefined?" "+this.nameList[i].family:'');
-        let renderedUse=humanNameDt.use;
-        let isNoEditing=this.editable && this.editableItemUse!==humanNameDt.use;
+        let renderedName=(currentHumanName.given.length>0?currentHumanName.given.join(" "):'')+(" "+currentHumanName.getFamilyElement().value);
+        let renderedUse=currentHumanName.use;
+        let isNoEditing=this.editable && this.editableItemUse!==currentHumanName.use;
 
         if(i!==defaultNameIndex || this.hideDefault===false){
            if(isNoEditing===true){
@@ -308,8 +306,8 @@ class HumanNameListItem extends LitElement{
                </span>
                <span style="vertical-align:middle;margin-left:auto;align-self:flex-end">
                <span style="margin-left:auto">
-               <mwc-button icon="edit" class="light" style="align-self:center;" @click=${(e)=>this.editNameHandler(humanNameDt)}></mwc-button></span>
-               <mwc-button icon="delete" dense class="light" style="align-self:center;" @click=${(e)=>this.removeNameHandler(i,humanNameDt)}></mwc-button>
+               <mwc-button icon="edit" class="light" style="align-self:center;" @click=${(e)=>this.editNameHandler(currentHumanName)}></mwc-button></span>
+               <mwc-button icon="delete" dense class="light" style="align-self:center;" @click=${(e)=>this.removeNameHandler(i,currentHumanName)}></mwc-button>
                </span>
             </span>
             `);
@@ -318,19 +316,19 @@ class HumanNameListItem extends LitElement{
             <span class="layout vertical wrap" style="font-family:Roboto;">
                 <span class="layout horizontal wrap">
                 <mwc-icon style="opacity:0.38; margin-right:32px;vertical-align:middle">${icon}</mwc-icon>
-                <mwc-textfield label="Name Given" value=${humanNameDt.given.join(" ")}
+                <mwc-textfield label="Name Given" value=${currentHumanName.given.join(" ")}
 
-                @blur=${(e)=>this.editNameHandler(humanNameDt)}
-                @input=${(e)=>{console.log(e);this.updateNameHandler(humanNameDt,"given",e.target.value)}} ></mwc-textfield>
-                <mwc-textfield label="Name Family" value=${humanNameDt.family} style="margin-left:56px"
-                @blur=${(e)=>this.editNameHandler(humanNameDt)}
-                @input=${(e)=>this.updateNameHandler(humanNameDt,"family",e.target.value)}></mwc-textfield>
+                @blur=${(e)=>this.editNameHandler(currentHumanName)}
+                @input=${(e)=>{this.updateNameHandler(currentHumanName,"given",e.target.value)}} ></mwc-textfield>
+                <mwc-textfield label="Name Family" value=${currentHumanName.family} style="margin-left:56px"
+                @blur=${(e)=>this.editNameHandler(currentHumanName)}
+                @input=${(e)=>this.updateNameHandler(currentHumanName,"family",e.target.value)}></mwc-textfield>
 
                 </span>
                 <span style="text-transform: capitalize;opacity:0.36;font-size: smaller;align-self: flex-start;">${renderedUse}</span>
                 <span class="layout horizontal" style="margin-bottom:24px">
                   <!--<mwc-button icon="save" outlined dense class="light" label="save" style="align-self:center;margin-left:auto" @click=${(e)=>this.editNameHandler(humanNameDt)}></mwc-button>-->
-                  <mwc-button icon="close" dense class="light" style="align-self:center;margin-left:auto" @click=${(e)=>this.cancelEditingNameHandler(humanNameDt)}></mwc-button>
+                  <mwc-button icon="close" dense class="light" style="align-self:center;margin-left:auto" @click=${(e)=>this.cancelEditingNameHandler(currentHumanName)}></mwc-button>
                 </span>
             </span>
             `);
@@ -363,6 +361,8 @@ class HumanNameListItem extends LitElement{
 
 
   }
+
+
 
   render(){
     this.totalCount=this.nameList.length;
