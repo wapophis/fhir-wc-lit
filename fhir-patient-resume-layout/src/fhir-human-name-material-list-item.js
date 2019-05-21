@@ -68,7 +68,6 @@ class FhirHumanNameMaterialListItem extends LitElement{
             return html`<mwc-list-item style="font-family:Roboto;" 
             modal
             icon="supervised_user_circle">
-    
           <span slot="primary-text" class="primary-text">${this.firstLine}</span>
           <span slot="secondary-text" class="secondary-text">${this.secondLine}</span>
              <p slot="content" class="content"><slot name="content"></slot></p>
@@ -89,7 +88,6 @@ class FhirHumanNameMaterialListItem extends LitElement{
 
         return html`<mwc-list-item style="font-family:Roboto;" 
         icon="${this.icon}">
-
         <span slot="primary-text" class="primary-text">${this.firstLine}</span>
           <span slot="secondary-text" class="secondary-text">${this.secondLine}</span>
              <p slot="content" class="content"><slot name="content"></slot></p>
