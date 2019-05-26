@@ -4,6 +4,7 @@
   "description": "Fhir web components based on lit-element",
   "main": "index.js",
   "dependencies": {
+    "@authentic/mwc-chips": "^0.5.2",
     "@authentic/mwc-formfield": "^0.5.0",
     "@authentic/mwc-list": "^0.4.10",
     "@authentic/mwc-select": "^0.5.0",

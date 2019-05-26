@@ -5,6 +5,7 @@ import {Button} from "@material/mwc-button";
 import {TextField} from "@authentic/mwc-textfield";
 import {Select} from "@authentic/mwc-select";
 import {Formfield} from "@authentic/mwc-formfield";
+import {Chip} from "@authentic/mwc-chips";
 
 class FhirHumanNameMaterialForm extends LitElement{
 
@@ -25,7 +26,8 @@ class FhirHumanNameMaterialForm extends LitElement{
     }
 
     static get styles(){
-      return css`
+      return [Layouts,Alignment,
+       css`
         .content{
           font-size:x-large;
           padding:32px;
@@ -38,12 +40,13 @@ class FhirHumanNameMaterialForm extends LitElement{
           margin-left:16px;
           margin-right:16px
         }
-      `;
+
+      `];
     }
 
     get renderNames(){
       return html`
-            <div class="layout horizontal wrap">
+            <div class="layout horizontal wrap between-aligned" style="justify-content:space-between">
                   <mwc-textfield name="givenName" icon="edit" value=""
                    box outlined
                    helperText="Please set your given name here"
@@ -88,12 +91,55 @@ class FhirHumanNameMaterialForm extends LitElement{
         </div>
       `;
     }
+    get renderPrefix(){
+     return html`
+     <div class="layout vertical">
+
+      <div class="layout horizontal">
+      <mwc-textfield name="prefix" icon="edit" value=""
+                   box outlined
+                   helperText="Please set any prefix here"
+                   label="Prefix"></mwc-textfield>
+        <mwc-chip-set input autoRemove id="chips" tabindex=0 @focus=${(ev)=>console.log(ev)} >
+          <mwc-chip label="Mister" avatar="M" trailingIcon="cancel"></mwc-chip>
+          <mwc-chip label="Missis" avatar="M" trailingIcon="cancel"></mwc-chip>
+          <mwc-chip label="Capitain" avatar="C" trailingIcon="cancel"></mwc-chip>
+        </mwc-chip-set>
+      </div>
+
+    </div>
+
+     `;
+    }
+
+
+    get renderSuffix(){
+      return html`
+
+      <div class="layout vertical" style="margin-top:16px">
+       <div class="layout horizontal">
+       <mwc-textfield name="suffix" icon="edit" value=""
+                    box outlined
+                    helperText="Please set any suffix here"
+                    label="Suffix"></mwc-textfield>
+         <mwc-chip-set input autoRemove id="chips" tabindex=0 @focus=${(ev)=>console.log(ev)} >
+           <mwc-chip label="Senior" avatar="S" trailingIcon="cancel"></mwc-chip>
+           <mwc-chip label="Junior" avatar="J" trailingIcon="cancel"></mwc-chip>
+         </mwc-chip-set>
+       </div>
+
+     </div>
+
+      `;
+     }
 
     render(){
       return html`
         <div class="layout vertical wrap content">
+        ${this.renderPrefix}
         ${this.renderNames}
         ${this.renderUse}
+        ${this.renderSuffix}
         ${this.renderPeriod}
 
         </div>`;
