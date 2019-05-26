@@ -6,6 +6,7 @@ import {TextField} from "@authentic/mwc-textfield";
 import {Select} from "@authentic/mwc-select";
 import {Formfield} from "@authentic/mwc-formfield";
 import {Chip} from "@authentic/mwc-chips";
+import moment from 'moment';
 
 class FhirHumanNameMaterialForm extends LitElement{
 
@@ -15,7 +16,10 @@ class FhirHumanNameMaterialForm extends LitElement{
             accordion:{type:Boolean},
             humanNameDt:{type:Object},
             title:{type:String},                  // TITLE TO SHOW ON TOP OF THE FORM
-            showExtensions:{type:Boolean}         // TRUE TO SHOW EXTENSIONS SELECTOR
+            showExtensions:{type:Boolean},        // TRUE TO SHOW EXTENSIONS SELECTOR
+            saveOnClose:{type:Boolean},           // AUTOSAVE ON FHIR RESOURCE AT CLOSE DIALOG
+            showSaveButton:{type:Boolean},        // Show Save Button
+            buttonText:{type:String}              // Text to show in the button to save if true
         };
     }
 
@@ -38,6 +42,9 @@ class FhirHumanNameMaterialForm extends LitElement{
           prefix:["Junior","Senior"],
         });
         this.title="Fhir HumanName Form";
+        this.saveOnClose=false;
+        this.showSaveButton=false;
+        this.buttonText="Save Name"
     }
 
     static get styles(){
@@ -56,6 +63,15 @@ class FhirHumanNameMaterialForm extends LitElement{
           padding:32px;
         }
 
+        .material-date{
+          outline: 0px solid transparent;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+          padding:8px;
+          font-size:large;
+          font-weight:400;
+          margin-top: 4px;
+          margin-bottom: 4px;
+        }
         .secondary-text{
           text-transform:capitalize
         }
@@ -67,15 +83,33 @@ class FhirHumanNameMaterialForm extends LitElement{
       `];
     }
 
+    handleGivenName(target){
+      this.humanNameDt.given=target.value.split(" ");
+    }
+
+    handleFamilyName(target){
+      this.humanNameDt.family=target.value;
+    }
+
+    handleUse(target){
+      this.humanNameDt.use=target.value;
+
+    }
+
+    handlePeriod(dateType,target){
+      this.humanNameDt.period[dateType]=target.value;
+      console.log(this.humanNameDt);
+    }
+
     get renderNames(){
 
       return html`
-            <div class="layout horizontal wrap between-aligned" style="justify-content:space-between;margin-bottom:4px;margin-top:4px;">
-                  <mwc-textfield name="givenName" icon="edit" value=""
+            <div class="layout horizontal wrap between-aligned" style="justify-content:space-between;">
+                  <mwc-textfield name="givenName" icon="edit" value="" style="margin-bottom:4px;margin-top:4px;"
                    box outlined
                    helperText="Please set your given name here"
-                   label="Given Name" value="${this.humanNameDt.given.join(" ")}" @blur=${(ev)=>console.log(this.humanNameDt)}></mwc-textfield>
-                   <mwc-textfield name="familyName" icon="edit" value="${this.humanNameDt.family}"
+                   label="Given Name" value="${this.humanNameDt.given.join(" ")}" @blur=${(ev)=>this.handleGivenName(ev.target)}></mwc-textfield>
+                   <mwc-textfield  style="margin-bottom:4px;margin-top:4px;" name="familyName" icon="edit" value="${this.humanNameDt.family}" @blur=${(ev)=>this.handleFamilyName(ev.target)}
                    box outlined
                    helperText="Please set your given name here"
                    label="Family Name"></mwc-textfield>
@@ -95,7 +129,7 @@ class FhirHumanNameMaterialForm extends LitElement{
         }
       }
 
-      return html`<mwc-select style="margin-bottom:4px;margin-top:4px;" value="${this.humanNameDt.use}" box outlined label="Name Use" helperText="Please set the use for this name" leadingIconContent="edit" @change=${(ev)=>console.log(ev)}>
+      return html`<mwc-select style="margin-bottom:4px;margin-top:4px;" value="${this.humanNameDt.use}" box outlined label="Name Use" helperText="Please set the use for this name" leadingIconContent="edit" @change=${(ev)=>this.handleUse(ev.target)}>
         <select slot="select" >
              ${useOptions}
           </select>
@@ -105,14 +139,18 @@ class FhirHumanNameMaterialForm extends LitElement{
     get renderPeriod(){
       return html`
         <div class="layout horizontal wrap between-justified" style="margin-top:16px;margin-bottom:16px;align-content:between-justified">
-        <fieldset style="border-radius:3px;border:1px solid silver;padding:12px 32px 12px 48px;">
+        <fieldset style="border-radius:4px;border:1px solid silver;padding:12px 32px 12px 48px;">
           <legend style="font-family:roboto;font-size:small;opacity:0.38">Name period valid</legend>
            <mwc-icon style="margin-left: -40px;opacity: 0.58;">edit</mwc-icon>
             <mwc-formfield alignEnd label="Since">
-              <input type="date" value="${this.humanNameDt.period.start}">
+              <input class="material-date" type="date" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}"
+              @blur=${(ev)=>this.handlePeriod("start",ev.target)}
+              value="${this.humanNameDt.period.start===undefined?'':moment(this.humanNameDt.period.start).format(moment.HTML5_FMT.DATE)}">
             </mwc-formfield>
-            <mwc-formfield alignEnd label="To">
-            <input type="date" value="${this.humanNameDt.period.end}">
+            <mwc-formfield alignEnd label="To" >
+            <input class="material-date" type="date" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}"
+            @blur=${(ev)=>this.handlePeriod("end",ev.target)}
+             value="${this.humanNameDt.period.end===undefined?'':moment(this.humanNameDt.period.end).format(moment.HTML5_FMT.DATE)}">
             </mwc-formfield>
         </fieldset>
         </div>
@@ -184,6 +222,13 @@ class FhirHumanNameMaterialForm extends LitElement{
        </mwc-select>`;
     }
 
+    get renderSaveButton(){
+
+      return html`
+      <p style="margin:16px"></p>
+      <mwc-button outlined raised dense label="${this.buttonText}" icon="save" @click=${(ev)=>console.log(ev)}></mwc-button>`;
+    }
+
     render(){
       return html`
       <div>
@@ -195,6 +240,7 @@ class FhirHumanNameMaterialForm extends LitElement{
         ${this.renderSuffix}
         ${this.renderPeriod}
         ${this.renderExtensions}
+        ${this.renderSaveButton}
         </div>
         </div>
         `;
