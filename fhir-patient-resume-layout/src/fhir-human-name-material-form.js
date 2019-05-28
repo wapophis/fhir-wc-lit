@@ -83,6 +83,16 @@ class FhirHumanNameMaterialForm extends LitElement{
       `];
     }
 
+   /**
+   * Only update element if humanNameDt has changed
+   */
+  shouldUpdate(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      console.log(`${propName} changed. oldValue: ${oldValue}`);
+    });
+    return true;
+  }
+
     handleGivenName(target){
       this.humanNameDt.given=target.value.split(" ");
     }
@@ -99,6 +109,22 @@ class FhirHumanNameMaterialForm extends LitElement{
     handlePeriod(dateType,target){
       this.humanNameDt.period[dateType]=target.value;
       console.log(this.humanNameDt);
+    }
+
+    handleAddSuffix(target){
+      if(target.value!==undefined && target.value.trim().length>0){
+        this.humanNameDt.addSuffix(target.value);
+      }
+      target.value="";
+      this.requestUpdate();
+    }
+
+    handleAddPrefix(target){
+      if(target.value!==undefined && target.value.trim().length>0){
+        this.humanNameDt.addPrefix(target.value);
+      }
+      target.value="";
+      this.requestUpdate();
     }
 
     get renderNames(){
@@ -168,7 +194,9 @@ class FhirHumanNameMaterialForm extends LitElement{
       <mwc-textfield name="prefix" icon="edit" value=""
                    box outlined
                    helperText="Please set any prefix here"
-                   label="Prefix"></mwc-textfield>
+                   label="Prefix"
+                   @blur=${(ev)=>this.handleAddPrefix(ev.target)}
+                   ></mwc-textfield>
         <mwc-chip-set input autoRemove id="chips" @focus=${(ev)=>console.log(ev)} >
         ${preffixesToRender}
         </mwc-chip-set>
@@ -193,7 +221,7 @@ class FhirHumanNameMaterialForm extends LitElement{
        <mwc-textfield name="suffix" icon="edit" value=""
                     box outlined
                     helperText="Please set any suffix here"
-                    label="Suffix"></mwc-textfield>
+                    label="Suffix" @blur=${(ev)=>this.handleAddSuffix(ev.target)}></mwc-textfield>
          <mwc-chip-set input autoRemove id="chips" @focus=${(ev)=>console.log(ev)} >
           ${suffixesToRender}
          </mwc-chip-set>
@@ -208,10 +236,10 @@ class FhirHumanNameMaterialForm extends LitElement{
      get renderExtensions(){
       let extensionsOptions=[];
       let commonExtensions=new Array();
-      commonExtensions.push(new ExtensionDt({uri:"extension1",valueString:"extension1-value"}));
+      commonExtensions.push(new ExtensionDt({uri:"extension1",value:new StringDt("extension1-value")}));
 
       for(let i=0;i<commonExtensions.length;i++){
-        extensionsOptions.push(html`<option value="${commonExtensions[i].uri}">${commonExtensions[i].valueString}</option>`);
+        extensionsOptions.push(html`<option value="${commonExtensions[i].uri}">${commonExtensions[i].value}</option>`);
       }
 
       return html`<mwc-select box outlined label="Extensions" leadingIconContent="edit" @change=${(ev)=>console.log(ev)}>
