@@ -124,17 +124,50 @@ class FhirHumanNameMaterialForm extends LitElement{
     }
 
     handleAddPrefix(target){
-      if(target.value!==undefined && target.value.trim().length>0){
-        this.humanNameDt.addPrefix(target.value);
-      }
+      this._addPrefix(target.value);
       target.value="";
-      this.requestUpdate();
+      //this.requestUpdate();
+      console.log(this.humanNameDt.prefix);
     }
+    _addPrefix(value){
+      let chipSet=this.shadowRoot.getElementById('chipsprefixes');
+      if(value!==undefined && value.trim().length>0){
+        let auxSet=new Set(this.humanNameDt.prefix);
+        let insertChip=true;
+        if(!auxSet.has(value)){
+          insertChip=false;
+        }
+        this.humanNameDt.addPrefix(value);
+        if(insertChip===true){
+        this._addChip(value,value.substring(0,1),chipSet);
+        }
+      }
+    }
+
+    _addChip(label,avatar,chipSet){
+      let chip = document.createElement('mwc-chip');
+      chip.label = label;
+      chip.trailingIcon = 'close';
+      chip.avatar=avatar;
+      chipSet.addChip(chip);
+    }
+
+    handleAddLivePrefix(ev){
+      let target=ev.target;
+      if(ev.data===" " && ev.inputType==="insertText" && target.value!==undefined && target.value.trim().length>0){
+        let values=target.value.split(" ");
+        this._addPrefix(values[values.length-2]);
+        target.value="";
+     //   this.requestUpdate();
+      }
+    }
+
     handleRemovePrefix(target){
       this.humanNameDt.removePrefix(target.label);
-      this.requestUpdate();
-
+      console.log(this.humanNameDt.prefix);
+   //   this.requestUpdate();
     }
+
 
     get renderNames(){
 
@@ -193,10 +226,12 @@ class FhirHumanNameMaterialForm extends LitElement{
     }
     get renderPrefix(){
       let preffixes=this.humanNameDt.prefix;
-      let preffixesToRender=new Array();
+      let preffixesToRender=[];
+      console.log(preffixes);
       for(let i=0;i<preffixes.length;i++){
-        preffixesToRender.push(html`<mwc-chip label="${preffixes[i]}" avatar="${preffixes[i].substring(0,1)}" trailingIcon="cancel"></mwc-chip>`);
+        preffixesToRender.push(html`<mwc-chip id="${preffixes[i]}" label="${preffixes[i]}" avatar="${preffixes[i].substring(0,1)}" trailingIcon="cancel"></mwc-chip>`);
       }
+      console.log(preffixesToRender);
      return html`
      <div class="layout vertical" style="margin-bottom:4px;margin-top:4px;">
       <div class="layout horizontal">
@@ -204,9 +239,10 @@ class FhirHumanNameMaterialForm extends LitElement{
                    box outlined
                    helperText="Please set any prefix here"
                    label="Prefix"
+                   @input=${(ev)=> this.handleAddLivePrefix(ev)}
                    @blur=${(ev)=>this.handleAddPrefix(ev.target)}
                    ></mwc-textfield>
-        <mwc-chip-set input autoRemove id="chips" @focus=${(ev)=>console.log(ev)} @MDCChip:removal=${(ev)=>this.handleRemovePrefix(ev.target)} >
+        <mwc-chip-set input autoRemove id="chipsprefixes" @focus=${(ev)=>console.log(ev)} @MDCChip:removal=${(ev)=>{this.handleRemovePrefix(ev.target);}} >
         ${preffixesToRender}
         </mwc-chip-set>
       </div>
@@ -231,7 +267,7 @@ class FhirHumanNameMaterialForm extends LitElement{
                     box outlined
                     helperText="Please set any suffix here"
                     label="Suffix" @blur=${(ev)=>this.handleAddSuffix(ev.target)}></mwc-textfield>
-         <mwc-chip-set input autoRemove id="chips" @focus=${(ev)=>console.log(ev)} @MDCChip:removal=${(ev)=>this.handleRemoveSuffix(ev.target)} >
+         <mwc-chip-set input autoRemove id="chipssuffixes" @focus=${(ev)=>console.log(ev)} @MDCChip:removal=${(ev)=>this.handleRemoveSuffix(ev.target)} >
           ${suffixesToRender}
          </mwc-chip-set>
        </div>
