@@ -16,7 +16,7 @@
     "install": "^0.12.2",
     "lit-element": "^2.1.0",
     "lit-flexbox-literals": "0.0.7",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "npm": "^6.9.0"
   },
   "devDependencies": {
